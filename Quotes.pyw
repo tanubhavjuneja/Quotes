@@ -6,7 +6,7 @@ import tkfilebrowser
 import requests
 from PyQt5.QtWidgets import QApplication, QLabel, QFrame
 from PyQt5.QtGui import QPixmap, QFont, QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt,QTimer
 time.sleep(5)
 def read_file_location():
     global mfl
@@ -54,6 +54,9 @@ class QuoteWidget:
         self.frame.setFixedWidth(300)
         self.quote_label = QLabel(self.frame)
         self.author_label = QLabel(self.frame)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_quote)
+        self.timer.start(60000) 
         close_button = QLabel(self.window)
         close_button.setPixmap(QPixmap(mfl+"close.png").scaled(40, 40)) 
         close_button.setAlignment(Qt.AlignCenter)
