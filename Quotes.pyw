@@ -7,7 +7,8 @@ import requests
 from PyQt5.QtWidgets import QApplication, QLabel, QFrame
 from PyQt5.QtGui import QPixmap, QFont, QIcon
 from PyQt5.QtCore import Qt,QTimer
-time.sleep(5)
+import json
+time.sleep(1)
 def read_file_location():
     global mfl
     try:
@@ -66,11 +67,12 @@ class QuoteWidget:
         self.window.show()
         self.update_quote()
         self.frame.mousePressEvent = self.update_quote
+    import requests
     def update_quote(self, event=None):
-        response = requests.get("https://api.quotable.io/random")
-        quote_data = response.json()
-        quote = quote_data["content"]
-        author = quote_data["author"]
+        response = requests.get("https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en")
+        data = json.loads(response.text)
+        quote = data["quoteText"]
+        author = data["quoteAuthor"] or "Unknown"
         self.quote_label.setText(quote)
         self.quote_label.setFont(QFont("Arial", 16))
         self.quote_label.setWordWrap(True)
