@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QApplication, QLabel, QFrame
 from PyQt5.QtGui import QPixmap, QFont, QIcon
 from PyQt5.QtCore import Qt,QTimer
 import json
+import requests
 time.sleep(1)
 def read_file_location():
     global mfl
@@ -67,24 +68,29 @@ class QuoteWidget:
         self.window.show()
         self.update_quote()
         self.frame.mousePressEvent = self.update_quote
-    import requests
     def update_quote(self, event=None):
-        response = requests.get("https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en")
-        data = json.loads(response.text)
-        quote = data["quoteText"]
-        author = data["quoteAuthor"] or "Unknown"
-        self.quote_label.setText(quote)
-        self.quote_label.setFont(QFont("Arial", 16))
-        self.quote_label.setWordWrap(True)
-        self.quote_label.setAlignment(Qt.AlignCenter)
-        self.quote_label.setFixedWidth(self.frame.width() - 20)
-        self.quote_label.setStyleSheet("background-color: transparent; color: black;")
-        self.author_label.setText("- " + author)
-        self.author_label.setFont(QFont("Arial", 12))
-        self.author_label.setAlignment(Qt.AlignRight)
-        self.author_label.setStyleSheet("background-color: transparent; color: black;")
-        self.quote_label.setGeometry(10, 20, self.frame.width() - 20, 300)
-        self.author_label.setGeometry(10, 330, self.frame.width() - 20, 60)
+        while True:
+            try:
+                response = requests.get("https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en")
+                response.raise_for_status() 
+                data = json.loads(response.text)
+                quote = data["quoteText"]
+                author = data["quoteAuthor"] or "Unknown"
+                self.quote_label.setText(quote)
+                self.quote_label.setFont(QFont("Arial", 16))
+                self.quote_label.setWordWrap(True)
+                self.quote_label.setAlignment(Qt.AlignCenter)
+                self.quote_label.setFixedWidth(self.frame.width() - 20)
+                self.quote_label.setStyleSheet("background-color: transparent; color: black;")
+                self.author_label.setText("- " + author)
+                self.author_label.setFont(QFont("Arial", 12))
+                self.author_label.setAlignment(Qt.AlignRight)
+                self.author_label.setStyleSheet("background-color: transparent; color: black;")
+                self.quote_label.setGeometry(10, 20, self.frame.width() - 20, 300)
+                self.author_label.setGeometry(10, 330, self.frame.width() - 20, 60)
+                break
+            except (requests.RequestException, json.JSONDecodeError):
+                continue
     def run(self):
         sys.exit(self.app.exec_())
 if __name__ == "__main__":
